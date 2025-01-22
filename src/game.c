@@ -7,7 +7,7 @@
 #include "Position.h"
 #include "game.h"
 
-void roundG(char board[8][8], int currentPlayer)
+bool roundG(char board[8][8], int currentPlayer)
 {
     char input[10];
     printf("Joueur %d, entrez votre mouvement (ex: e2 e4) : ", currentPlayer);
@@ -16,11 +16,16 @@ void roundG(char board[8][8], int currentPlayer)
     GamePosition from = transformer(strtok(input, " "));
     GamePosition to = transformer(strtok(NULL, " "));
 
+    printf("Debug: from position - x: %d, y: %d\n", from.position.x, from.position.y);
+    printf("Debug: to position - x: %d, y: %d\n", to.position.x, to.position.y);
+
     if (isValidMove(board, from, to)) {
         movePiece(board, from, to);
         currentPlayer = (currentPlayer == 1) ? 2 : 1;
+        return true;
     } else {
         printf("Mouvement invalide. Réessayez.\n");
+        return false;
     }
 }
 
@@ -29,10 +34,10 @@ GamePosition transformer(char *input)
     GamePosition pos;
 
     // 0 c'est une lettre et 1 c'est un chiffre
-    if(input != NULL && strlen(input) == 2 && isalpha(input[0]) && isdigit(input[1])){
-        pos.position.x = input[0] - 'a';
-        pos.position.y = 8 - (input[1] - '0');
-    }else{
+    if (input != NULL && strlen(input) >= 2) {
+        pos.position.x = tolower(input[0]) - 'a';
+        pos.position.y = 8 - (input[1] - '0');  // Conversion correcte du chiffre
+    } else {
         pos.position.x = -1;
         pos.position.y = -1;
     }
@@ -40,24 +45,43 @@ GamePosition transformer(char *input)
     return pos;
 }
 
-bool isValidMove(char board[8][8], GamePosition from, GamePosition to)
-{
-
-    if(((from.position.x > 8 || from.position.x < 0) && (from.position.y > 8 || from.position.y < 0)) || ((to.position.x > 8 || to.position.x < 0) && (to.position.y > 8 || to.position.y < 0))){
+bool isValidMove(char board[8][8], GamePosition from, GamePosition to) {
+    // Vérifier si les positions sont valides
+    if (!isInBorder(from.position) || !isInBorder(to.position)) {
         return false;
     }
 
+    char piece = board[from.position.y][from.position.x];
+    
+    // Vérifier si la pièce existe
+    if (piece == '.') {
+        return false;
+    }
 
-    return isValidMovement(board, from.position, to.position, from.piece);
+    // Créer la structure Piece
+    Piece p = {
+        .type = toupper(piece),
+        .color = (piece >= 'A' && piece <= 'Z') // true pour blanc, false pour noir
+    };
+
+    return isValidMovement(board, from.position, to.position, p);
 }
 
-void movePiece(char board[8][8], GamePosition from, GamePosition to)
-{ 
-    if(isValidMove(board, from, to) == 1){
-        printf("The movement is invalid, you cannot move the piece that way");
-    }else{
-        Piece tab = from.piece;
-        from.piece = (Piece){0}; // Valeur par default
-        to.piece = tab;
+void movePiece(char board[8][8], GamePosition from, GamePosition to) {
+    
+    if (isValidMove(board, from, to) == false) {
+        printf("Mouvement invalide\n");
+        return;
     }
+    
+    printf("Déplacement: %c de %c%d vers %c%d\n", 
+           board[from.position.y][from.position.x],
+           'a' + from.position.x,
+           8 - from.position.y,
+           'a' + to.position.x,
+           8 - to.position.y);
+           
+    char piece = board[from.position.y][from.position.x];
+    board[from.position.y][from.position.x] = '.';
+    board[to.position.y][to.position.x] = piece;
 }

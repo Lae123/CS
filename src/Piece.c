@@ -4,34 +4,28 @@
 #include <string.h>
 #include "game.h"
 
-int isValidMovement(char board[8][8], Position from, Position to, Piece piece){
+bool isValidMovement(char board[8][8], Position from, Position to, Piece piece){
     bool res = true;
-    switch (piece.type){
-        case 'P':
-            res = movePion(board,from,to,piece);
-        break;
-
-        case 'T':
+    switch (piece.type) {
+        case 'P': // Pion
+            res = movePion(board, from, to, piece);
+            break;
+        case 'R': // Tour (Rook)
             res = moveTour(board, from, to);
-        break;
-
-        case 'C':
-            res = moveCavalier(board, from , to);
-        break;
-
-        case 'F':
+            break;
+        case 'N': // Cavalier (kNight)
+            res = moveCavalier(board, from, to);
+            break;
+        case 'B': // Fou (Bishop)
             res = moveFou(board, from, to);
-        break;
-
-        case 'R':
+            break;
+        case 'K': // Roi (King)
             res = moveRoi(board, from, to);
-        break;
-
-        case 'D':
+            break;
+        case 'Q': // Dame (Queen)
             res = moveReine(board, from, to);
-        break;
+            break;
     }
-
     return res;
 }
 

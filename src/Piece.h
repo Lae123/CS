@@ -9,7 +9,7 @@ typedef struct {
 }Piece;
 
 
-int isValidMovement(char board[8][8], Position from, Position to, Piece piece);
+bool isValidMovement(char board[8][8], Position from, Position to, Piece piece);
 bool isInBorder(Position pos);
 bool movePion(char board[8][8], Position from, Position to, Piece piece);
 bool moveTour(char board[8][8], Position from, Position to);
