@@ -29,12 +29,17 @@ bool isPathClear(char board[8][8], Position from, Position to) {
 }
 
 // Vérifie les mouvements du pion
-bool movePion(Position from, Position to, Piece piece) {
+bool movePion(Position from, Position to, Piece piece, int curr) {
     if (!isInBorder(from) || !isInBorder(to)) {
         return false;
     }
 
-    int direction = piece.color ? 1 : -1; // Blanc avance (+1), noir (-1)
+    int direction =0; // Blanc avance (+1), noir (-1)
+    if(curr == 2){
+        direction = 1;
+    }else{
+        direction = -1;
+    }
 
     // Mouvements verticaux
     if (from.x == to.x) {
@@ -115,28 +120,35 @@ bool moveRoi(char board[8][8], Position from, Position to) {
     }
 
     if (abs(to.x - from.x) <= 1 && abs(to.y - from.y) <= 1) {
-        return true;
+        return isPathClear(board, from, to);
     }
 
     return false;
 }
 
 // Vérifie si un mouvement est valide pour une pièce donnée
-bool isValidMovement(char board[8][8], Position from, Position to, Piece piece) {
+bool isValidMovement(char board[8][8], Position from, Position to, Piece piece, int curr) {
     switch (piece.type) {
         case 'P': // Pion
-            return movePion(from, to, piece);
+            printf("yahouuuuu PPPPP");
+            return movePion(from, to, piece, curr);
         case 'R': // Tour (Rook)
+        printf("yahouuuuu RRR");
             return moveTour(board, from, to);
         case 'N': // Cavalier (Knight)
+        printf("yahouuuuu NNN");
             return moveCavalier(from, to);
         case 'B': // Fou (Bishop)
+        printf("yahouuuuu BBBBB");
             return moveFou(board, from, to);
         case 'Q': // Dame (Queen)
+        printf("yahouuuuu REIIIINE");
             return moveReine(board, from, to);
         case 'K': // Roi (King)
+        printf("yahouuuuu ROIIIII");
             return moveRoi(board, from, to);
         default:
+        printf("krf,ds;");
             return false;
     }
 }

@@ -8,16 +8,18 @@ int main() {
     initializeBoard(board);
     int gameOver = 0;
     int currentPlayer = 1;
-    
+
     while (!gameOver) {
         affichage(board);
-        bool validMove = 0;
+        bool validMove = false;
+
         while (!validMove) {
             validMove = roundG(board, currentPlayer);
-            if (!validMove) {
-                printf("Mouvement invalide. Réessayez.\n");
-            }
         }
+
+        // Changement de joueur après un mouvement valide
+        currentPlayer = (currentPlayer == 1) ? 2 : 1;
     }
+
     return 0;
 }

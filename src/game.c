@@ -19,15 +19,16 @@ bool roundG(char board[8][8], int currentPlayer)
     printf("Debug: from position - x: %d, y: %d\n", from.position.x, from.position.y);
     printf("Debug: to position - x: %d, y: %d\n", to.position.x, to.position.y);
 
-    if (isValidMove(board, from, to)) {
-        movePiece(board, from, to);
-        currentPlayer = (currentPlayer == 1) ? 2 : 1;
+    if (isValidMove(board, from, to, currentPlayer)) {
+        movePiece(board, from, to, currentPlayer);
         return true;
     } else {
         printf("Mouvement invalide. Réessayez.\n");
         return false;
     }
+
 }
+
 
 GamePosition transformer(char *input)
 {
@@ -53,35 +54,42 @@ bool isPiecePresent(Piece piece, GamePosition pos) {
     return false;
 }
 
-bool isValidMove(char board[8][8], GamePosition from, GamePosition to) {
+bool isValidMove(char board[8][8], GamePosition from, GamePosition to, int currentPlayer) {
     // Vérifier si les positions sont valides
     if (!isInBorder(from.position) || !isInBorder(to.position)) {
+        printf("oaaaa c moiiii");
         return false;
     }
 
     char piece = board[from.position.y][from.position.x];
-    
-    // Vérifier si la pièce existe
+
+    // Vérifier si la position de départ contient une pièce
     if (piece == '.') {
+        printf("oiu c mooii");
         return false;
     }
 
-    if (isPiecePresent(from.piece, to)){
-        return false;
-    }
+    // Vérifier si la pièce appartient au joueur actif
+    bool isWhite = (piece >= 'A' && piece <= 'Z');
+    // if ((currentPlayer == 1 && !isWhite) || (currentPlayer == 2 && isWhite)) {
+    //     printf("ouiii ci moi");
+    //     return false;  // Pièce appartenant à l'adversaire
+    // }
 
     // Créer la structure Piece
     Piece p = {
         .type = toupper(piece),
-        .color = (piece >= 'A' && piece <= 'Z') // true pour blanc, false pour noir
+        .color = isWhite // true pour blanc, false pour noir
     };
 
-    return isValidMovement(board,from.position, to.position, p);
+    // Vérifier si le mouvement est valide pour cette pièce
+    return isValidMovement(board, from.position, to.position, p, currentPlayer);
 }
 
-void movePiece(char board[8][8], GamePosition from, GamePosition to) {
+
+void movePiece(char board[8][8], GamePosition from, GamePosition to, int currentPlayer) {
     
-    if (isValidMove(board, from, to) == false) {
+    if (isValidMove(board, from, to, currentPlayer) == false) {
         printf("Mouvement invalide\n");
         return;
     }
