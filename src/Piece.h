@@ -19,4 +19,8 @@ bool moveReine(char board[8][8], Position from, Position to);
 bool moveRoi(char board[8][8], Position from, Position to);
 bool isPathClear(char board[8][8], Position from, Position to);
 
+bool isCheckmate(char board[8][8], bool isWhite);
+bool isCheck(char board[8][8], Position kingPos, bool isWhite);
+Position findKingPos(char board[8][8], bool isWhite);
+
 #endif

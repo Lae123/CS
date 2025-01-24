@@ -130,25 +130,109 @@ bool moveRoi(char board[8][8], Position from, Position to) {
 bool isValidMovement(char board[8][8], Position from, Position to, Piece piece, int curr) {
     switch (piece.type) {
         case 'P': // Pion
-            printf("yahouuuuu PPPPP");
             return movePion(from, to, piece, curr);
         case 'R': // Tour (Rook)
-        printf("yahouuuuu RRR");
             return moveTour(board, from, to);
         case 'N': // Cavalier (Knight)
-        printf("yahouuuuu NNN");
             return moveCavalier(from, to);
         case 'B': // Fou (Bishop)
-        printf("yahouuuuu BBBBB");
             return moveFou(board, from, to);
         case 'Q': // Dame (Queen)
-        printf("yahouuuuu REIIIINE");
             return moveReine(board, from, to);
         case 'K': // Roi (King)
-        printf("yahouuuuu ROIIIII");
             return moveRoi(board, from, to);
         default:
-        printf("krf,ds;");
             return false;
     }
+}
+
+// Fonction pour détecter si un roi est en échec
+bool isCheck(char board[8][8], Position kingPos, bool isWhite) {
+    Position from;
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            char piece = board[y][x];
+
+            // Vérifie les pièces adverses
+            if ((isWhite && piece >= 'a' && piece <= 'z') || (!isWhite && piece >= 'A' && piece <= 'Z')) {
+                from.x = x;
+                from.y = y;
+
+                Piece p = { .type = piece, .color = !isWhite };
+                if (isValidMovement(board, from, kingPos, p, isWhite ? 1 : 2)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+// Vérifie si un joueur est en échec et mat
+bool isCheckmate(char board[8][8], bool isWhite) {
+    Position kingPos = findKingPos(board, isWhite);
+
+    // Si le roi n'est pas en échec, ce n'est pas un mat
+    if (!isCheck(board, kingPos, isWhite)) {
+        return false;
+    }
+
+    // Vérifie tous les mouvements possibles du joueur
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            char piece = board[y][x];
+
+            // Vérifie uniquement les pièces du joueur
+            if ((isWhite && piece >= 'A' && piece <= 'Z') || (!isWhite && piece >= 'a' && piece <= 'z')) {
+                Position from = { .x = x, .y = y };
+
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        if (dx == 0 && dy == 0) continue;
+
+                        Position to = { .x = x + dx, .y = y + dy };
+
+                        if (isInBorder(to) && isValidMovement(board, from, to, (Piece){.type = piece, .color = isWhite}, isWhite ? 1 : 2)) {
+                            // Copie de l'échiquier pour simuler le mouvement
+                            char tempBoard[8][8];
+                            memcpy(tempBoard, board, sizeof(tempBoard));
+
+                            // Simuler le déplacement
+                            tempBoard[to.y][to.x] = tempBoard[from.y][from.x];
+                            tempBoard[from.y][from.x] = '.';
+
+                            // Vérifie si le roi reste en échec après le mouvement
+                            Position newKingPos = findKingPos(tempBoard, isWhite);
+                            if (!isCheck(tempBoard, newKingPos, isWhite)) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Aucun mouvement légal pour sortir de l'échec -> échec et mat
+    return true;
+}
+
+Position findKingPos(char board[8][8], bool isWhite) {
+    Position kingPos;
+    char king = isWhite ? 'K' : 'k';
+
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            if (board[y][x] == king) {
+                kingPos.x = x;
+                kingPos.y = y;
+                return kingPos;
+            }
+        }
+    }
+
+    // Return an invalid position if the king is not found
+    kingPos.x = -1;
+    kingPos.y = -1;
+    return kingPos;
 }
