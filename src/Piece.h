@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include "Position.h"
 typedef struct {
-    char type;  // 'P', 'T', 'C', 'F', 'R', 'D' pour les pièces
-    bool color; // true pour blanc, false pour noir
+    char type;  // 'P', 'T', 'C', 'F', 'R', 'D' for the pieces
+    bool color; // true for white, false for black
 }Piece;
 
 

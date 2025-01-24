@@ -4,12 +4,12 @@
 #include <string.h>
 #include "game.h"
 
-// Vérifie si une position est dans les limites de l'échiquier
+// Checks if a position is within the boundaries of the chessboard
 bool isInBorder(Position pos) {
     return pos.x >= 0 && pos.x < 8 && pos.y >= 0 && pos.y < 8;
 }
 
-// Vérifie si le chemin entre deux positions est dégagé
+// Checks if the path between two positions is clear
 bool isPathClear(char board[8][8], Position from, Position to) {
     int dx = (to.x > from.x) ? 1 : (to.x < from.x) ? -1 : 0;
     int dy = (to.y > from.y) ? 1 : (to.y < from.y) ? -1 : 0;
@@ -28,31 +28,31 @@ bool isPathClear(char board[8][8], Position from, Position to) {
     return true;
 }
 
-// Vérifie les mouvements du pion
+// Checks the movements of the pawn
 bool movePion(Position from, Position to, Piece piece, int curr) {
     if (!isInBorder(from) || !isInBorder(to)) {
         return false;
     }
 
-    int direction =0; // Blanc avance (+1), noir (-1)
+    int direction =0;
     if(curr == 2){
         direction = 1;
     }else{
         direction = -1;
     }
 
-    // Mouvements verticaux
+    // Vertical movements
     if (from.x == to.x) {
         if (to.y == from.y + direction) {
             return true;
         }
-        // Deux cases au premier mouvement
+        // Two squares on the first move
         if (from.y == (piece.color ? 1 : 6) && to.y == from.y + 2 * direction) {
             return true;
         }
     }
 
-    // Capture diagonale
+    // Diagonal capture
     if (abs(to.x - from.x) == 1 && to.y == from.y + direction) {
         return true;
     }
@@ -60,7 +60,7 @@ bool movePion(Position from, Position to, Piece piece, int curr) {
     return false;
 }
 
-// Vérifie les mouvements de la tour
+// Checks the movements of the rook
 bool moveTour(char board[8][8], Position from, Position to) {
     if (!isInBorder(from) || !isInBorder(to)) {
         return false;
@@ -73,7 +73,7 @@ bool moveTour(char board[8][8], Position from, Position to) {
     return false;
 }
 
-// Vérifie les mouvements du cavalier
+// Checks the movements of the knight
 bool moveCavalier(Position from, Position to) {
     int dx[] = {2, 1, -1, -2, -2, -1, 1, 2};
     int dy[] = {1, 2, 2, 1, -1, -2, -2, -1};
@@ -91,7 +91,7 @@ bool moveCavalier(Position from, Position to) {
     return false;
 }
 
-// Vérifie les mouvements du fou
+// Checks the movements of the bishop
 bool moveFou(char board[8][8], Position from, Position to) {
     if (!isInBorder(from) || !isInBorder(to)) {
         return false;
@@ -104,7 +104,7 @@ bool moveFou(char board[8][8], Position from, Position to) {
     return false;
 }
 
-// Vérifie les mouvements de la reine
+// Checks the movements of the queen
 bool moveReine(char board[8][8], Position from, Position to) {
     if (!isInBorder(from) || !isInBorder(to)) {
         return false;
@@ -113,7 +113,7 @@ bool moveReine(char board[8][8], Position from, Position to) {
     return moveTour(board, from, to) || moveFou(board, from, to);
 }
 
-// Vérifie les mouvements du roi
+// Checks the movements of the king
 bool moveRoi(char board[8][8], Position from, Position to) {
     if (!isInBorder(from) || !isInBorder(to)) {
         return false;
@@ -126,34 +126,34 @@ bool moveRoi(char board[8][8], Position from, Position to) {
     return false;
 }
 
-// Vérifie si un mouvement est valide pour une pièce donnée
+// Checks if a movement is valid for a given piece
 bool isValidMovement(char board[8][8], Position from, Position to, Piece piece, int curr) {
     switch (piece.type) {
-        case 'P': // Pion
+        case 'P': // Pawn
             return movePion(from, to, piece, curr);
-        case 'R': // Tour (Rook)
+        case 'R': // (Rook)
             return moveTour(board, from, to);
-        case 'N': // Cavalier (Knight)
+        case 'N': // (Knight)
             return moveCavalier(from, to);
-        case 'B': // Fou (Bishop)
+        case 'B': // (Bishop)
             return moveFou(board, from, to);
-        case 'Q': // Dame (Queen)
+        case 'Q': // (Queen)
             return moveReine(board, from, to);
-        case 'K': // Roi (King)
+        case 'K': // (King)
             return moveRoi(board, from, to);
         default:
             return false;
     }
 }
 
-// Fonction pour détecter si un roi est en échec
+// Function to detect if a king is in check
 bool isCheck(char board[8][8], Position kingPos, bool isWhite) {
     Position from;
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             char piece = board[y][x];
 
-            // Vérifie les pièces adverses
+            // Check opponent's pieces
             if ((isWhite && piece >= 'a' && piece <= 'z') || (!isWhite && piece >= 'A' && piece <= 'Z')) {
                 from.x = x;
                 from.y = y;
@@ -168,21 +168,21 @@ bool isCheck(char board[8][8], Position kingPos, bool isWhite) {
     return false;
 }
 
-// Vérifie si un joueur est en échec et mat
+// Checks if a player is in checkmate
 bool isCheckmate(char board[8][8], bool isWhite) {
     Position kingPos = findKingPos(board, isWhite);
 
-    // Si le roi n'est pas en échec, ce n'est pas un mat
+    // If the king is not in check, it is not checkmate
     if (!isCheck(board, kingPos, isWhite)) {
         return false;
     }
 
-    // Vérifie tous les mouvements possibles du joueur
+    // Check all possible moves of the player
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             char piece = board[y][x];
 
-            // Vérifie uniquement les pièces du joueur
+            // Check only the player's pieces
             if ((isWhite && piece >= 'A' && piece <= 'Z') || (!isWhite && piece >= 'a' && piece <= 'z')) {
                 Position from = { .x = x, .y = y };
 
@@ -193,15 +193,15 @@ bool isCheckmate(char board[8][8], bool isWhite) {
                         Position to = { .x = x + dx, .y = y + dy };
 
                         if (isInBorder(to) && isValidMovement(board, from, to, (Piece){.type = piece, .color = isWhite}, isWhite ? 1 : 2)) {
-                            // Copie de l'échiquier pour simuler le mouvement
+                            // Copy the board to simulate the move
                             char tempBoard[8][8];
                             memcpy(tempBoard, board, sizeof(tempBoard));
 
-                            // Simuler le déplacement
+                            // Simulate the move
                             tempBoard[to.y][to.x] = tempBoard[from.y][from.x];
                             tempBoard[from.y][from.x] = '.';
 
-                            // Vérifie si le roi reste en échec après le mouvement
+                            // Check if this is still a check 
                             Position newKingPos = findKingPos(tempBoard, isWhite);
                             if (!isCheck(tempBoard, newKingPos, isWhite)) {
                                 return false;
@@ -213,7 +213,7 @@ bool isCheckmate(char board[8][8], bool isWhite) {
         }
     }
 
-    // Aucun mouvement légal pour sortir de l'échec -> échec et mat
+    // No legal move to get out of check -> checkmate
     return true;
 }
 

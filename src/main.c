@@ -5,36 +5,36 @@
 
 int main() {
     char board[8][8];
-    initializeBoard(board); // Initialise l'échiquier
+    initializeBoard(board); // Initialize the chessboard
     int gameOver = 0;
-    int currentPlayer = 1; // 1 pour les blancs, 2 pour les noirs
+    int currentPlayer = 1; // 1 for white, 2 for black
 
     while (!gameOver) {
-        affichage(board); // Affiche l'échiquier
+        affichage(board); // Display the chessboard
 
         bool validMove = false;
 
         while (!validMove) {
-            validMove = roundG(board, currentPlayer); // Le joueur effectue un mouvement
+            validMove = roundG(board, currentPlayer); // The player makes a move
         }
 
-        // Vérification de l'échec ou de l'échec et mat
+        // Check for check or checkmate
         bool isWhite = (currentPlayer == 1);
         if (isCheck(board, findKingPos(board, isWhite), isWhite)) {
-            printf("Le roi du joueur %d est en échec !\n", currentPlayer);
+            printf("The king of player %d is in danger !\n", currentPlayer);
 
             if (isCheckmate(board, isWhite)) {
                 affichage(board);
-                printf("Échec et mat ! Le joueur %d a perdu.\n", currentPlayer);
+                printf("Check Mat ! Player  %d has lost.\n", currentPlayer);
                 gameOver = 1;
                 break;
             }
         }
 
-        // Changement de joueur après un mouvement valide
+        // Change player after a valid move
         currentPlayer = (currentPlayer == 1) ? 2 : 1;
     }
 
-    printf("Partie terminée ! Merci d'avoir joué.\n");
+    printf("Good game!Thank you for playing.\n");
     return 0;
 }

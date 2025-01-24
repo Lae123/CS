@@ -10,20 +10,17 @@
 bool roundG(char board[8][8], int currentPlayer)
 {
     char input[10];
-    printf("Joueur %d, entrez votre mouvement (ex: e2 e4) : ", currentPlayer);
+    printf("Player %d, enter a movement (ex: e2 e4) : ", currentPlayer);
     fgets(input, sizeof(input), stdin);
 
     GamePosition from = transformer(strtok(input, " "));
     GamePosition to = transformer(strtok(NULL, " "));
 
-    printf("Debug: from position - x: %d, y: %d\n", from.position.x, from.position.y);
-    printf("Debug: to position - x: %d, y: %d\n", to.position.x, to.position.y);
-
     if (isValidMove(board, from, to, currentPlayer)) {
         movePiece(board, from, to, currentPlayer);
         return true;
     } else {
-        printf("Mouvement invalide. Réessayez.\n");
+        printf("Try again. Invalid movement\n");
         return false;
     }
 
@@ -34,10 +31,10 @@ GamePosition transformer(char *input)
 {
     GamePosition pos;
 
-    // 0 c'est une lettre et 1 c'est un chiffre
+    // 0 is a letter and 1 is a digit
     if (input != NULL && strlen(input) >= 2) {
         pos.position.x = tolower(input[0]) - 'a';
-        pos.position.y = 8 - (input[1] - '0');  // Conversion correcte du chiffre
+        pos.position.y = 8 - (input[1] - '0');  // Correct conversion of the digit
     } else {
         pos.position.x = -1;
         pos.position.y = -1;
@@ -55,34 +52,28 @@ bool isPiecePresent(Piece piece, GamePosition pos) {
 }
 
 bool isValidMove(char board[8][8], GamePosition from, GamePosition to, int currentPlayer) {
-    // Vérifier si les positions sont valides
+    // Check if the positions are valid
     if (!isInBorder(from.position) || !isInBorder(to.position)) {
-        printf("oaaaa c moiiii");
         return false;
     }
 
     char piece = board[from.position.y][from.position.x];
 
-    // Vérifier si la position de départ contient une pièce
+    // Check if the starting position contains a piece
     if (piece == '.') {
-        printf("oiu c mooii");
         return false;
     }
 
-    // Vérifier si la pièce appartient au joueur actif
+    // Check if the piece belongs to the active player
     bool isWhite = (piece >= 'A' && piece <= 'Z');
-    // if ((currentPlayer == 1 && !isWhite) || (currentPlayer == 2 && isWhite)) {
-    //     printf("ouiii ci moi");
-    //     return false;  // Pièce appartenant à l'adversaire
-    // }
 
-    // Créer la structure Piece
+    // Create the Piece structure
     Piece p = {
         .type = toupper(piece),
-        .color = isWhite // true pour blanc, false pour noir
+        .color = isWhite // true for white, false for black
     };
 
-    // Vérifier si le mouvement est valide pour cette pièce
+    // Check if the move is valid for this piece
     return isValidMovement(board, from.position, to.position, p, currentPlayer);
 }
 
@@ -90,11 +81,11 @@ bool isValidMove(char board[8][8], GamePosition from, GamePosition to, int curre
 void movePiece(char board[8][8], GamePosition from, GamePosition to, int currentPlayer) {
     
     if (isValidMove(board, from, to, currentPlayer) == false) {
-        printf("Mouvement invalide\n");
+        printf("Invalide movement\n");
         return;
     }
     
-    printf("Déplacement: %c de %c%d vers %c%d\n", 
+    printf("Move : %c from %c%d to %c%d\n", 
            board[from.position.y][from.position.x],
            'a' + from.position.x,
            8 - from.position.y,
@@ -105,3 +96,4 @@ void movePiece(char board[8][8], GamePosition from, GamePosition to, int current
     board[from.position.y][from.position.x] = '.';
     board[to.position.y][to.position.x] = piece;
 }
+
