@@ -14,5 +14,6 @@ bool roundG(char board[8][8], int currentPlayer);
 GamePosition transformer(char* input);
 bool isValidMove(char board[8][8], GamePosition from, GamePosition to);
 void movePiece(char board[8][8], GamePosition from, GamePosition to);
+bool isPiecePresent(Piece piece, GamePosition pos);
 
 #endif

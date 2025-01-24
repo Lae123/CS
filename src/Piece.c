@@ -4,59 +4,52 @@
 #include <string.h>
 #include "game.h"
 
-bool isValidMovement(char board[8][8], Position from, Position to, Piece piece){
-    bool res = true;
-    switch (piece.type) {
-        case 'P': // Pion
-            res = movePion(board, from, to, piece);
-            break;
-        case 'R': // Tour (Rook)
-            res = moveTour(board, from, to);
-            break;
-        case 'N': // Cavalier (kNight)
-            res = moveCavalier(board, from, to);
-            break;
-        case 'B': // Fou (Bishop)
-            res = moveFou(board, from, to);
-            break;
-        case 'K': // Roi (King)
-            res = moveRoi(board, from, to);
-            break;
-        case 'Q': // Dame (Queen)
-            res = moveReine(board, from, to);
-            break;
-    }
-    return res;
-}
-
-
 // Vérifie si une position est dans les limites de l'échiquier
 bool isInBorder(Position pos) {
     return pos.x >= 0 && pos.x < 8 && pos.y >= 0 && pos.y < 8;
 }
 
-// Vérifie les mouvements du pion
-bool movePion(char board[8][8], Position from, Position to, Piece piece) {
-    bool res = true;
+// Vérifie si le chemin entre deux positions est dégagé
+bool isPathClear(char board[8][8], Position from, Position to) {
+    int dx = (to.x > from.x) ? 1 : (to.x < from.x) ? -1 : 0;
+    int dy = (to.y > from.y) ? 1 : (to.y < from.y) ? -1 : 0;
 
-    // Vérifier si la destination est dans les limites
+    int x = from.x + dx;
+    int y = from.y + dy;
+
+    while (x != to.x || y != to.y) {
+        if (board[y][x] != '.') {
+            return false;
+        }
+        x += dx;
+        y += dy;
+    }
+
+    return true;
+}
+
+// Vérifie les mouvements du pion
+bool movePion(Position from, Position to, Piece piece) {
     if (!isInBorder(from) || !isInBorder(to)) {
         return false;
     }
 
     int direction = piece.color ? 1 : -1; // Blanc avance (+1), noir (-1)
 
-    // Mouvements verticaux (1 ou 2 cases au début)
+    // Mouvements verticaux
     if (from.x == to.x) {
-        if ((to.y == from.y + direction) || 
-            (from.y == (piece.color ? 1 : 6) && to.y == from.y + 2 * direction)) {
-            return res;
+        if (to.y == from.y + direction) {
+            return true;
+        }
+        // Deux cases au premier mouvement
+        if (from.y == (piece.color ? 1 : 6) && to.y == from.y + 2 * direction) {
+            return true;
         }
     }
 
     // Capture diagonale
     if (abs(to.x - from.x) == 1 && to.y == from.y + direction) {
-        return res;
+        return true;
     }
 
     return false;
@@ -64,28 +57,22 @@ bool movePion(char board[8][8], Position from, Position to, Piece piece) {
 
 // Vérifie les mouvements de la tour
 bool moveTour(char board[8][8], Position from, Position to) {
-    bool res = true;
-
-    // Vérifier si la destination est dans les limites
     if (!isInBorder(from) || !isInBorder(to)) {
         return false;
     }
 
-    // Mouvement horizontal ou vertical
     if (from.x == to.x || from.y == to.y) {
-        return res;
+        return isPathClear(board, from, to);
     }
 
     return false;
 }
 
 // Vérifie les mouvements du cavalier
-bool moveCavalier(char board[8][8], Position from, Position to) {
-    // Différences possibles pour un mouvement en L
+bool moveCavalier(Position from, Position to) {
     int dx[] = {2, 1, -1, -2, -2, -1, 1, 2};
     int dy[] = {1, 2, 2, 1, -1, -2, -2, -1};
 
-    // Vérifier si la destination est dans les limites
     if (!isInBorder(from) || !isInBorder(to)) {
         return false;
     }
@@ -105,9 +92,8 @@ bool moveFou(char board[8][8], Position from, Position to) {
         return false;
     }
 
-    // Mouvement en diagonale
     if (abs(to.x - from.x) == abs(to.y - from.y)) {
-        return true;
+        return isPathClear(board, from, to);
     }
 
     return false;
@@ -115,6 +101,10 @@ bool moveFou(char board[8][8], Position from, Position to) {
 
 // Vérifie les mouvements de la reine
 bool moveReine(char board[8][8], Position from, Position to) {
+    if (!isInBorder(from) || !isInBorder(to)) {
+        return false;
+    }
+
     return moveTour(board, from, to) || moveFou(board, from, to);
 }
 
@@ -124,10 +114,29 @@ bool moveRoi(char board[8][8], Position from, Position to) {
         return false;
     }
 
-    // Une case dans n'importe quelle direction
     if (abs(to.x - from.x) <= 1 && abs(to.y - from.y) <= 1) {
         return true;
     }
 
     return false;
+}
+
+// Vérifie si un mouvement est valide pour une pièce donnée
+bool isValidMovement(char board[8][8], Position from, Position to, Piece piece) {
+    switch (piece.type) {
+        case 'P': // Pion
+            return movePion(from, to, piece);
+        case 'R': // Tour (Rook)
+            return moveTour(board, from, to);
+        case 'N': // Cavalier (Knight)
+            return moveCavalier(from, to);
+        case 'B': // Fou (Bishop)
+            return moveFou(board, from, to);
+        case 'Q': // Dame (Queen)
+            return moveReine(board, from, to);
+        case 'K': // Roi (King)
+            return moveRoi(board, from, to);
+        default:
+            return false;
+    }
 }

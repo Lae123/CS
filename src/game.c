@@ -45,6 +45,14 @@ GamePosition transformer(char *input)
     return pos;
 }
 
+
+bool isPiecePresent(Piece piece, GamePosition pos) {
+    if (pos.piece.type != '\0') {
+        return piece.color != pos.piece.color;
+    }
+    return false;
+}
+
 bool isValidMove(char board[8][8], GamePosition from, GamePosition to) {
     // Vérifier si les positions sont valides
     if (!isInBorder(from.position) || !isInBorder(to.position)) {
@@ -58,13 +66,17 @@ bool isValidMove(char board[8][8], GamePosition from, GamePosition to) {
         return false;
     }
 
+    if (isPiecePresent(from.piece, to)){
+        return false;
+    }
+
     // Créer la structure Piece
     Piece p = {
         .type = toupper(piece),
         .color = (piece >= 'A' && piece <= 'Z') // true pour blanc, false pour noir
     };
 
-    return isValidMovement(board, from.position, to.position, p);
+    return isValidMovement(board,from.position, to.position, p);
 }
 
 void movePiece(char board[8][8], GamePosition from, GamePosition to) {
