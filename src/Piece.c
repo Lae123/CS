@@ -120,7 +120,7 @@ bool moveRoi(char board[8][8], Position from, Position to) {
     }
 
     if (abs(to.x - from.x) <= 1 && abs(to.y - from.y) <= 1) {
-        return isPathClear(board, from, to);
+        return isPathClear(board, from, to) && !isCheckmate(board, board[from.y][from.x] >= 'A' && board[from.y][from.x] <= 'Z');
     }
 
     return false;
