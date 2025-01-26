@@ -1,3 +1,14 @@
+# Chess Game
+
+#### Video Demo:  <URL HERE>
+
+## How to Run the Game
+
+1. Clone or download the repository.
+2. type in the terminal `gcc -o main src/main.c src/board.c src/game.c src/piece.c` and then `./main`
+3. If you want to exit juste do `CTRL + C`
+
+
 ## Introduction
 
 This project is a chess game. It requires two player and the goal is just to play a fun game of chess.
@@ -64,11 +75,3 @@ This file serves as the entry point to the program and manages the game loop. It
 ## Conclusion
 
 This chess game is built from multiple files that work together to provide an interactive chess game experience. The board file handles the setup and display of the chessboard, the game file manages the game logic, and the piece file defines the rules for each chess piece's movement. The position file provides the necessary structure to represent positions on the chessboard, while the main file ties everything together into a playable game.
-
----
-
-## How to Run the Game
-
-1. Clone or download the repository.
-2. type in the terminal `gcc -o main src/main.c src/board.c src/game.c src/piece.c` and then `./main`
-
