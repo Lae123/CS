@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 #include "game.h"
 
 // Checks if a position is within the boundaries of the chessboard
@@ -147,19 +148,49 @@ bool isValidMovement(char board[8][8], Position from, Position to, Piece piece, 
 }
 
 // Function to detect if a king is in check
+// bool isCheck(char board[8][8], Position kingPos, bool isWhite) {
+//     Position from;
+//     for (int y = 0; y < 8; y++) {
+//         for (int x = 0; x < 8; x++) {
+//             char piece = board[y][x];
+
+//             // Check opponent's pieces
+//             if ((isWhite && piece >= 'a' && piece <= 'z') || (!isWhite && piece >= 'A' && piece <= 'Z')) {
+//                 from.x = x;
+//                 from.y = y;
+
+//                 Piece p = { .type = piece, .color = !isWhite };
+//                 if (isValidMovement(board, from, kingPos, p, !isWhite ? 1 : 2)) {
+//                     printf("Check detected: %c at (%d, %d) can move to king at (%d, %d)\n", piece, x, y, kingPos.x, kingPos.y);
+//                     return true;
+//                 }
+//             }
+//         }
+//     }
+//     printf("No check detected for king at (%d, %d)\n", kingPos.x, kingPos.y);
+//     return false;
+// }
+
 bool isCheck(char board[8][8], Position kingPos, bool isWhite) {
     Position from;
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             char piece = board[y][x];
-
-            // Check opponent's pieces
-            if ((isWhite && piece >= 'a' && piece <= 'z') || (!isWhite && piece >= 'A' && piece <= 'Z')) {
+            
+            if ((isWhite && piece >= 'a' && piece <= 'z') || 
+                (!isWhite && piece >= 'A' && piece <= 'Z')) {
+                
                 from.x = x;
                 from.y = y;
 
-                Piece p = { .type = piece, .color = !isWhite };
-                if (isValidMovement(board, from, kingPos, p, isWhite ? 1 : 2)) {
+                Piece p = { 
+                    .type = toupper(piece),
+                    .color = !isWhite  
+                };
+
+                int curr = (piece >= 'A' && piece <= 'Z') ? 1 : 2;
+                
+                if (isValidMovement(board, from, kingPos, p, curr)) {
                     return true;
                 }
             }
@@ -172,50 +203,45 @@ bool isCheck(char board[8][8], Position kingPos, bool isWhite) {
 bool isCheckmate(char board[8][8], bool isWhite) {
     Position kingPos = findKingPos(board, isWhite);
 
-    // If the king is not in check, it is not checkmate
     if (!isCheck(board, kingPos, isWhite)) {
         return false;
     }
 
-    // Check all possible moves of the player
-    for (int y = 0; y < 8; y++) {
-        for (int x = 0; x < 8; x++) {
-            char piece = board[y][x];
+    // Look if the king can escape
+    for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+            // Ignore the case where the king doesn't move
+            if (dx == 0 && dy == 0) continue;
 
-            // Check only the player's pieces
-            if ((isWhite && piece >= 'A' && piece <= 'Z') || (!isWhite && piece >= 'a' && piece <= 'z')) {
-                Position from = { .x = x, .y = y };
+            Position newPos = { .x = kingPos.x + dx, .y = kingPos.y + dy };
 
-                for (int dy = -1; dy <= 1; dy++) {
-                    for (int dx = -1; dx <= 1; dx++) {
-                        if (dx == 0 && dy == 0) continue;
+            if (!isInBorder(newPos)) continue;
 
-                        Position to = { .x = x + dx, .y = y + dy };
+            // Look if the case is occupied by a friendly piece
+            char target = board[newPos.y][newPos.x];
+            if ((isWhite && target >= 'A' && target <= 'Z') || 
+                (!isWhite && target >= 'a' && target <= 'z')) {
+                continue;
+            }
 
-                        if (isInBorder(to) && isValidMovement(board, from, to, (Piece){.type = piece, .color = isWhite}, isWhite ? 1 : 2)) {
-                            // Copy the board to simulate the move
-                            char tempBoard[8][8];
-                            memcpy(tempBoard, board, sizeof(tempBoard));
+            // Simulate the movement of the king
+            char tempBoard[8][8];
+            memcpy(tempBoard, board, sizeof(tempBoard));
+            tempBoard[newPos.y][newPos.x] = board[kingPos.y][kingPos.x];
+            tempBoard[kingPos.y][kingPos.x] = '.';
 
-                            // Simulate the move
-                            tempBoard[to.y][to.x] = tempBoard[from.y][from.x];
-                            tempBoard[from.y][from.x] = '.';
-
-                            // Check if this is still a check 
-                            Position newKingPos = findKingPos(tempBoard, isWhite);
-                            if (!isCheck(tempBoard, newKingPos, isWhite)) {
-                                return false;
-                            }
-                        }
-                    }
-                }
+            // Look if the king can escape
+            if (!isCheck(tempBoard, newPos, isWhite)) {
+                return false; // The king can escape
             }
         }
     }
 
-    // No legal move to get out of check -> checkmate
+    // If no legal move exists to escape the check
     return true;
 }
+
+
 
 Position findKingPos(char board[8][8], bool isWhite) {
     Position kingPos;

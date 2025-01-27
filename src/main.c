@@ -20,12 +20,14 @@ int main() {
 
         // Check for check or checkmate
         bool isWhite = (currentPlayer == 1);
-        if (isCheck(board, findKingPos(board, isWhite), isWhite)) {
-            printf("The king of player %d is in danger !\n", currentPlayer);
+        Position kingPos = findKingPos(board, isWhite);
+        
+        if (isCheck(board, kingPos, isWhite)) {
+            printf("Your king is in danger!\n");
 
             if (isCheckmate(board, isWhite)) {
                 affichage(board);
-                printf("Check Mat ! Player  %d has lost.\n", currentPlayer);
+                printf("Checkmate! Player %d won.\n", currentPlayer);
                 gameOver = 1;
                 break;
             }
@@ -35,6 +37,6 @@ int main() {
         currentPlayer = (currentPlayer == 1) ? 2 : 1;
     }
 
-    printf("Good game!Thank you for playing.\n");
+    printf("Good game! Thank you for playing.\n");
     return 0;
 }
