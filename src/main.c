@@ -1,3 +1,5 @@
+
+
 #include <stdio.h>
 #include <stdbool.h>
 #include "board.h"
@@ -8,6 +10,15 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 640
 #define TILE_SIZE 80  // Taille de chaque case
+
+// Fonction pour convertir les coordonnées de la souris en indices de case
+void getMousePosition(int *x, int *y) {
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    *x = mouseX / TILE_SIZE;
+    *y = mouseY / TILE_SIZE;
+}
+
 
 int main() {
     // Initialisation de SDL
@@ -40,7 +51,7 @@ int main() {
         return 1;
     }
 
-    // Charger les textures des pièces (fichiers image)
+    // Charger les textures des pièces
     SDL_Texture* pieces[12];
     pieces[0]  = loadTexture(renderer, "assets/wp.png"); // Pion blanc
     pieces[1]  = loadTexture(renderer, "assets/bp.png"); // Pion noir
@@ -77,14 +88,35 @@ int main() {
     int gameOver = 0;
     int currentPlayer = 1; // 1 pour blanc, 2 pour noir
 
+    // Variables pour la gestion des clics de la souris
+    GamePosition selectedPiece = {-1, -1};  // -1 signifie qu'aucune pièce n'est sélectionnée
+
     // Gestion des événements SDL
     SDL_Event event;
     while (!gameOver) {
-        // Gestion des événements SDL
+        bool validMove = false;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 gameOver = 1;
                 break;
+            }
+
+            // Gestion des clics de la souris
+            if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+                int x, y;
+                getMousePosition(&x, &y);
+
+                if (selectedPiece.position.x == -1 && board[y][x] != '.') {
+                    // Première sélection : choisir une pièce
+                    selectedPiece.position.x = x;
+                    selectedPiece.position.y = y;
+                } else if (selectedPiece.position.x != -1) {
+                    // Deuxième clic : déplacer la pièce
+                    GamePosition to = {x, y};
+                    movePiece(board, selectedPiece, to, currentPlayer);
+                    selectedPiece.position.x = -1; // Réinitialiser la sélection
+                    validMove = true;
+                }
             }
         }
 
@@ -92,22 +124,14 @@ int main() {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Fond blanc
         SDL_RenderClear(renderer);
 
-        // Dessiner l'échiquier
+        // Dessiner l'échiquier et les pièces
         drawBoard(renderer);
-
-        // Dessiner les pièces sur l'échiquier
         drawPieces(renderer, pieces, board);
 
         SDL_RenderPresent(renderer);
 
         // Affichage du plateau sous forme textuelle pour les joueurs
         affichage(board);
-
-        // Boucle de jeu, faire un mouvement
-        bool validMove = false;
-        while (!validMove) {
-            validMove = roundG(board, currentPlayer); // La fonction de mouvement
-        }
 
         // Vérification du check/checkmate
         bool isWhite = (currentPlayer == 1);
@@ -125,7 +149,9 @@ int main() {
         }
 
         // Changer de joueur après un mouvement valide
-        currentPlayer = (currentPlayer == 1) ? 2 : 1;
+        if (validMove) {
+            currentPlayer = (currentPlayer == 1) ? 2 : 1;
+        }
 
         // Ajouter un léger délai pour éviter une boucle trop rapide et gourmande en ressources
         SDL_Delay(100); // 100ms
