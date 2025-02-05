@@ -5,7 +5,8 @@
 ## How to Run the Game
 
 1. Clone or download the repository.
-2. type in the terminal `gcc -o main src/main.c src/board.c src/game.c src/piece.c` and then `./main`
+2. type in the terminal `gcc -o main src/main.c src/board.c src/game.c src/piece.c -I/opt/homebrew/include -L/opt/homebrew/lib -lSDL2 -lSDL2_image -framework Cocoa` and then `./main`
+
 3. If you want to exit juste do `CTRL + C`
 
 
