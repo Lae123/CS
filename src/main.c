@@ -53,18 +53,18 @@ int main() {
 
     // Charger les textures des pièces
     SDL_Texture* pieces[12];
-    pieces[0]  = loadTexture(renderer, "assets/wp.png"); // Pion blanc
-    pieces[1]  = loadTexture(renderer, "assets/bp.png"); // Pion noir
-    pieces[2]  = loadTexture(renderer, "assets/wr.png"); // Tour blanche
-    pieces[3]  = loadTexture(renderer, "assets/br.png"); // Tour noire
-    pieces[4]  = loadTexture(renderer, "assets/wn.png"); // Cavalier blanc
-    pieces[5]  = loadTexture(renderer, "assets/bn.png"); // Cavalier noir
-    pieces[6]  = loadTexture(renderer, "assets/wb.png"); // Fou blanc
-    pieces[7]  = loadTexture(renderer, "assets/bb.png"); // Fou noir
-    pieces[8]  = loadTexture(renderer, "assets/wq.png"); // Reine blanche
-    pieces[9]  = loadTexture(renderer, "assets/bq.png"); // Reine noire
-    pieces[10] = loadTexture(renderer, "assets/wk.png"); // Roi blanc
-    pieces[11] = loadTexture(renderer, "assets/bk.png"); // Roi noir
+    pieces[0]  = loadTexture(renderer, "assets/bp.png"); // Pion blanc
+    pieces[1]  = loadTexture(renderer, "assets/wp.png"); // Pion noir
+    pieces[2]  = loadTexture(renderer, "assets/br.png"); // Tour blanche
+    pieces[3]  = loadTexture(renderer, "assets/wr.png"); // Tour noire
+    pieces[4]  = loadTexture(renderer, "assets/bn.png"); // Cavalier blanc
+    pieces[5]  = loadTexture(renderer, "assets/wn.png"); // Cavalier noir
+    pieces[6]  = loadTexture(renderer, "assets/bb.png"); // Fou blanc
+    pieces[7]  = loadTexture(renderer, "assets/wb.png"); // Fou noir
+    pieces[8]  = loadTexture(renderer, "assets/bq.png"); // Reine blanche
+    pieces[9]  = loadTexture(renderer, "assets/wq.png"); // Reine noire
+    pieces[10] = loadTexture(renderer, "assets/bk.png"); // Roi blanc
+    pieces[11] = loadTexture(renderer, "assets/wk.png"); // Roi noir
 
     // Vérifier que toutes les textures sont chargées
     for (int i = 0; i < 12; i++) {
