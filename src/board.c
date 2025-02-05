@@ -87,22 +87,28 @@ void drawBoard(SDL_Renderer* renderer) {
 }
 
 // Fonction pour dessiner les pièces sur l'échiquier
-void drawPieces(SDL_Renderer* renderer, SDL_Texture* pieces[12]) {
-    SDL_Rect pieceRect = {0, 0, TILE_SIZE, TILE_SIZE};
-    char piecesMap[12] = {'P', 'p', 'R', 'r', 'N', 'n', 'B', 'b', 'Q', 'q', 'K', 'k'};
-
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            for (int k = 0; k < 12; k++) {
-                if (board[i][j] == piecesMap[k]) {
-                    if (!pieces[k]) {  // Vérifie si la texture est bien chargée
-                        printf("Erreur: texture %c non chargée\n", piecesMap[k]);
-                        continue;
-                    }
-                    pieceRect.x = j * TILE_SIZE;
-                    pieceRect.y = i * TILE_SIZE;
-                    SDL_RenderCopy(renderer, pieces[k], NULL, &pieceRect);
-                }
+void drawPieces(SDL_Renderer* renderer, SDL_Texture* pieces[12], char board[8][8]) {
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            char piece = board[y][x];
+            int index = -1;
+            switch (piece) {
+                case 'P': index = 0; break;  // Pion blanc
+                case 'p': index = 1; break;  // Pion noir
+                case 'R': index = 2; break;  // Tour blanche
+                case 'r': index = 3; break;  // Tour noire
+                case 'N': index = 4; break;  // Cavalier blanc
+                case 'n': index = 5; break;  // Cavalier noir
+                case 'B': index = 6; break;  // Fou blanc
+                case 'b': index = 7; break;  // Fou noir
+                case 'Q': index = 8; break;  // Reine blanche
+                case 'q': index = 9; break;  // Reine noire
+                case 'K': index = 10; break; // Roi blanc
+                case 'k': index = 11; break; // Roi noir
+            }
+            if (index != -1 && pieces[index]) {
+                SDL_Rect dest = {x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE};
+                SDL_RenderCopy(renderer, pieces[index], NULL, &dest);
             }
         }
     }

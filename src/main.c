@@ -15,9 +15,10 @@ int main() {
         printf("Erreur d'initialisation de SDL: %s\n", SDL_GetError());
         return 1;
     }
-    
+
     if (!IMG_Init(IMG_INIT_PNG)) {
         printf("Erreur d'initialisation de SDL_image: %s\n", IMG_GetError());
+        SDL_Quit();
         return 1;
     }
 
@@ -25,12 +26,17 @@ int main() {
     SDL_Window* window = SDL_CreateWindow("Échecs SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window) {
         printf("Erreur de création de la fenêtre: %s\n", SDL_GetError());
+        IMG_Quit();
+        SDL_Quit();
         return 1;
     }
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         printf("Erreur de création du renderer: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        IMG_Quit();
+        SDL_Quit();
         return 1;
     }
 
@@ -49,6 +55,21 @@ int main() {
     pieces[10] = loadTexture(renderer, "assets/wk.png"); // Roi blanc
     pieces[11] = loadTexture(renderer, "assets/bk.png"); // Roi noir
 
+    // Vérifier que toutes les textures sont chargées
+    for (int i = 0; i < 12; i++) {
+        if (!pieces[i]) {
+            printf("Erreur: Impossible de charger une texture.\n");
+            for (int j = 0; j < 12; j++) {
+                if (pieces[j]) SDL_DestroyTexture(pieces[j]);
+            }
+            SDL_DestroyRenderer(renderer);
+            SDL_DestroyWindow(window);
+            IMG_Quit();
+            SDL_Quit();
+            return 1;
+        }
+    }
+
     // Initialiser le plateau
     char board[8][8];
     initializeBoard(board);
@@ -56,16 +77,26 @@ int main() {
     int gameOver = 0;
     int currentPlayer = 1; // 1 pour blanc, 2 pour noir
 
+    // Gestion des événements SDL
+    SDL_Event event;
     while (!gameOver) {
+        // Gestion des événements SDL
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                gameOver = 1;
+                break;
+            }
+        }
+
         // Affichage du plateau et des pièces
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Fond blanc
         SDL_RenderClear(renderer);
 
         // Dessiner l'échiquier
         drawBoard(renderer);
 
         // Dessiner les pièces sur l'échiquier
-        drawPieces(renderer, pieces);
+        drawPieces(renderer, pieces, board);
 
         SDL_RenderPresent(renderer);
 
@@ -95,6 +126,9 @@ int main() {
 
         // Changer de joueur après un mouvement valide
         currentPlayer = (currentPlayer == 1) ? 2 : 1;
+
+        // Ajouter un léger délai pour éviter une boucle trop rapide et gourmande en ressources
+        SDL_Delay(100); // 100ms
     }
 
     printf("Bonne partie ! Merci d'avoir joué.\n");
@@ -103,7 +137,6 @@ int main() {
     for (int i = 0; i < 12; i++) {
         SDL_DestroyTexture(pieces[i]);
     }
-    
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
