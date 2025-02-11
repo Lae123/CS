@@ -15,5 +15,5 @@ GamePosition transformer(char* input);
 bool isValidMove(char board[8][8], GamePosition from, GamePosition to, int currentPlayer);
 void movePiece(char board[8][8], GamePosition from, GamePosition to, int currentPlayer);
 bool isPiecePresent(Piece piece, GamePosition pos);
-
+bool isPlayerPiece(char piece, int currentPlayer);
 #endif

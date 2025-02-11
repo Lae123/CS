@@ -6,17 +6,7 @@
 #define SCREEN_HEIGHT 640
 #define TILE_SIZE 80  // Chaque case fait 80 pixels
 
-// Échiquier initial
-char board[8][8] = {
-    {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'},
-    {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
-    {'.', '.', '.', '.', '.', '.', '.', '.'},
-    {'.', '.', '.', '.', '.', '.', '.', '.'},
-    {'.', '.', '.', '.', '.', '.', '.', '.'},
-    {'.', '.', '.', '.', '.', '.', '.', '.'},
-    {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
-    {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'}
-};
+
 
 void initializeBoard (char board[8][8])
 {

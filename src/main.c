@@ -19,6 +19,11 @@ void getMousePosition(int *x, int *y) {
     *y = mouseY / TILE_SIZE;
 }
 
+void drawSelectedTile(SDL_Renderer* renderer, int x, int y) {
+    SDL_Rect rect = {x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE};
+    SDL_SetRenderDrawColor(renderer, 255, 215, 255, 226); // Couleur rouge semi-transparente
+    SDL_RenderFillRect(renderer, &rect);
+}
 
 int main() {
     // Initialisation de SDL
@@ -53,18 +58,18 @@ int main() {
 
     // Charger les textures des pièces
     SDL_Texture* pieces[12];
-    pieces[0]  = loadTexture(renderer, "assets/bp.png"); // Pion blanc
-    pieces[1]  = loadTexture(renderer, "assets/wp.png"); // Pion noir
-    pieces[2]  = loadTexture(renderer, "assets/br.png"); // Tour blanche
-    pieces[3]  = loadTexture(renderer, "assets/wr.png"); // Tour noire
-    pieces[4]  = loadTexture(renderer, "assets/bn.png"); // Cavalier blanc
-    pieces[5]  = loadTexture(renderer, "assets/wn.png"); // Cavalier noir
-    pieces[6]  = loadTexture(renderer, "assets/bb.png"); // Fou blanc
-    pieces[7]  = loadTexture(renderer, "assets/wb.png"); // Fou noir
-    pieces[8]  = loadTexture(renderer, "assets/bq.png"); // Reine blanche
-    pieces[9]  = loadTexture(renderer, "assets/wq.png"); // Reine noire
-    pieces[10] = loadTexture(renderer, "assets/bk.png"); // Roi blanc
-    pieces[11] = loadTexture(renderer, "assets/wk.png"); // Roi noir
+    pieces[0]  = loadTexture(renderer, "assets/bp.png");
+    pieces[1]  = loadTexture(renderer, "assets/wp.png");
+    pieces[2]  = loadTexture(renderer, "assets/br.png");
+    pieces[3]  = loadTexture(renderer, "assets/wr.png");
+    pieces[4]  = loadTexture(renderer, "assets/bn.png");
+    pieces[5]  = loadTexture(renderer, "assets/wn.png");
+    pieces[6]  = loadTexture(renderer, "assets/bb.png");
+    pieces[7]  = loadTexture(renderer, "assets/wb.png");
+    pieces[8]  = loadTexture(renderer, "assets/bq.png");
+    pieces[9]  = loadTexture(renderer, "assets/wq.png");
+    pieces[10] = loadTexture(renderer, "assets/bk.png");
+    pieces[11] = loadTexture(renderer, "assets/wk.png");
 
     // Vérifier que toutes les textures sont chargées
     for (int i = 0; i < 12; i++) {
@@ -100,46 +105,65 @@ int main() {
                 gameOver = 1;
                 break;
             }
-
+    
             // Gestion des clics de la souris
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
                 int x, y;
                 getMousePosition(&x, &y);
-
-                if (selectedPiece.position.x == -1 && board[y][x] != '.') {
-                    // Première sélection : choisir une pièce
-                    selectedPiece.position.x = x;
-                    selectedPiece.position.y = y;
-                } else if (selectedPiece.position.x != -1) {
-                    // Deuxième clic : déplacer la pièce
+    
+                if (selectedPiece.position.x == -1) {
+                    // Aucune pièce sélectionnée : vérifier si la case cliquée contient une pièce du joueur actuel
+                    if (isPlayerPiece(board[y][x], currentPlayer)) {
+                        selectedPiece.position.x = x;
+                        selectedPiece.position.y = y;
+                    }
+                } else {
+                    // Une pièce est déjà sélectionnée : vérifier si le mouvement est valide
                     GamePosition to = {x, y};
-                    movePiece(board, selectedPiece, to, currentPlayer);
-                    selectedPiece.position.x = -1; // Réinitialiser la sélection
-                    validMove = true;
+                    if (isValidMove(board, selectedPiece, to, currentPlayer)) {
+                        movePiece(board, selectedPiece, to, currentPlayer);
+                        validMove = true;
+                        selectedPiece.position.x = -1; // Réinitialiser la sélection après un mouvement valide
+                    } else {
+                        // Mouvement invalide : vérifier si l'utilisateur a cliqué sur une autre pièce du même joueur
+                        if (isPlayerPiece(board[y][x], currentPlayer)) {
+                            // Changer la sélection pour la nouvelle pièce
+                            selectedPiece.position.x = x;
+                            selectedPiece.position.y = y;
+                        } else {
+                            // Annuler la sélection si l'utilisateur a cliqué ailleurs
+                            selectedPiece.position.x = -1;
+                        }
+                    }
                 }
             }
         }
-
+    
         // Affichage du plateau et des pièces
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Fond blanc
         SDL_RenderClear(renderer);
-
+    
         // Dessiner l'échiquier et les pièces
         drawBoard(renderer);
         drawPieces(renderer, pieces, board);
-
+    
+        // Dessiner la case sélectionnée
+        if (selectedPiece.position.x != -1) {
+            drawSelectedTile(renderer, selectedPiece.position.x, selectedPiece.position.y);
+        }
+    
         SDL_RenderPresent(renderer);
-
+    
         // Affichage du plateau sous forme textuelle pour les joueurs
         affichage(board);
-
+    
         // Vérification du check/checkmate
         bool isWhite = (currentPlayer == 1);
         Position kingPos = findKingPos(board, isWhite);
-
+    
         if (isCheck(board, kingPos, isWhite)) {
             printf("Votre roi est en danger !\n");
-
+    
             if (isCheckmate(board, isWhite)) {
                 affichage(board);
                 printf("Échec et mat ! Le joueur %d a gagné.\n", currentPlayer);
@@ -147,12 +171,12 @@ int main() {
                 break;
             }
         }
-
+    
         // Changer de joueur après un mouvement valide
         if (validMove) {
             currentPlayer = (currentPlayer == 1) ? 2 : 1;
         }
-
+    
         // Ajouter un léger délai pour éviter une boucle trop rapide et gourmande en ressources
         SDL_Delay(100); // 100ms
     }

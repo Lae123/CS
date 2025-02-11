@@ -86,14 +86,20 @@ void movePiece(char board[8][8], GamePosition from, GamePosition to, int current
     }
     
     printf("Move : %c from %c%d to %c%d\n", 
-           board[from.position.y][from.position.x],
-           'a' + from.position.x,
-           8 - from.position.y,
-           'a' + to.position.x,
-           8 - to.position.y);
+            board[from.position.y][from.position.x],
+            'a' + from.position.x,
+            8 - from.position.y,
+            'a' + to.position.x,
+            8 - to.position.y);
            
     char piece = board[from.position.y][from.position.x];
     board[from.position.y][from.position.x] = '.';
     board[to.position.y][to.position.x] = piece;
 }
+
+bool isPlayerPiece(char piece, int currentPlayer) {
+    if (currentPlayer == 1) return piece >= 'a' && piece <= 'z'; // Pièces blanches
+    return piece >= 'A' && piece <= 'Z'; // Pièces noires
+}
+
 
