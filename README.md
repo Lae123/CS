@@ -75,6 +75,7 @@ The `position.h` file defines the Position structure, which is used to represent
 #### File: `main.c`
 This file serves as the entry point to the program and manages the game loop. It initializes the board, handles player turns, checks for check or checkmate, and displays the board after each move.
 -	The main function initializes the board, then enters a game loop where each player takes turns making a move. After every move, the program checks if the player's king is in check or checkmate. If checkmate is detected, the game ends and announces the winner. After each turn, the game switches to the other player's turn.
+This is where we handle the creation of the windows by using SDL.
 
 ## Conclusion
 

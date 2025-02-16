@@ -184,7 +184,7 @@ int main() {
         Position kingPos = findKingPos(board, isWhite);
 
         if (isCheck(board, kingPos, isWhite)) {
-            printf("Your king is in danger !\n");
+            printf("Your king is in danger ! You must protect him\n");
 
             if (isCheckmate(board, isWhite)) {
                 affichage(board);
