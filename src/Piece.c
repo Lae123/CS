@@ -129,6 +129,13 @@ bool moveRoi(char board[8][8], Position from, Position to) {
 
 // Checks if a movement is valid for a given piece
 bool isValidMovement(char board[8][8], Position from, Position to, Piece piece, int curr) {
+    
+    char targetPiece = board[to.y][to.x];
+    if ((piece.color && targetPiece >= 'A' && targetPiece <= 'Z') ||  // White pieces are attaquing another white pice
+        (!piece.color && targetPiece >= 'a' && targetPiece <= 'z')) { // Black pieces are attaquing another Black pice
+        return false;
+    }
+
     switch (piece.type) {
         case 'P': // Pawn
             return movePion(from, to, piece, curr);
@@ -146,30 +153,6 @@ bool isValidMovement(char board[8][8], Position from, Position to, Piece piece, 
             return false;
     }
 }
-
-// Function to detect if a king is in check
-// bool isCheck(char board[8][8], Position kingPos, bool isWhite) {
-//     Position from;
-//     for (int y = 0; y < 8; y++) {
-//         for (int x = 0; x < 8; x++) {
-//             char piece = board[y][x];
-
-//             // Check opponent's pieces
-//             if ((isWhite && piece >= 'a' && piece <= 'z') || (!isWhite && piece >= 'A' && piece <= 'Z')) {
-//                 from.x = x;
-//                 from.y = y;
-
-//                 Piece p = { .type = piece, .color = !isWhite };
-//                 if (isValidMovement(board, from, kingPos, p, !isWhite ? 1 : 2)) {
-//                     printf("Check detected: %c at (%d, %d) can move to king at (%d, %d)\n", piece, x, y, kingPos.x, kingPos.y);
-//                     return true;
-//                 }
-//             }
-//         }
-//     }
-//     printf("No check detected for king at (%d, %d)\n", kingPos.x, kingPos.y);
-//     return false;
-// }
 
 bool isCheck(char board[8][8], Position kingPos, bool isWhite) {
     Position from;
