@@ -11,7 +11,6 @@
 #define TILE_SIZE 80
 
 void displayEndScreen(SDL_Renderer* renderer, const char* message, TTF_Font* font) {
-    // Effacer l'écran
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
     SDL_RenderClear(renderer);
 
@@ -204,7 +203,7 @@ int main() {
     if (gameOver) {
         const char* message;
         if (isCheckmate(board, currentPlayer == 1)) {
-            message = (currentPlayer == 1) ? "The black Won !" : "The white won !";
+            message = (currentPlayer == 1) ? "The white Won !" : "The black won !";
         } else {
             message = "Game Over !";
         }
