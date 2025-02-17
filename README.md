@@ -1,6 +1,6 @@
 # Chess Game
 
-#### Video Demo:  <URL HERE>
+#### Video Demo:  <[Chess](https://youtu.be/ZWDUgn3mUww)>
 
 ## How to Run the Game
 
